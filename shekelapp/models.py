@@ -31,8 +31,8 @@ class Item(models.Model):
             "id": self.id,
             "name": self.name,
             "cost": self.cost,
-            "customer": self.customer,
-            "consumers_ids": ids(self.consumers)
+            #"customer": self.customer,
+            #"consumers_ids": ids(self.consumers)
         }
 
     def __str__(self):
