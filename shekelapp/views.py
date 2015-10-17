@@ -1,15 +1,14 @@
 # from django.shortcuts import render
-# Create your views here.
+# from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed, Http404
+# from django.core import serializers
 
 # import json
 from annoying.decorators import ajax_request
 from django.http import HttpResponse
-from django.http.response import HttpResponseBadRequest, HttpResponseNotAllowed, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
-from django.core import serializers
-
 from .models import Item, MyUser
+
 
 @ajax_request
 def json_handler(request, data):
@@ -35,32 +34,55 @@ def all_items(request):
         return json_handler(request, data)
     except Exception as e:
         print(e)
-
-    # TODO выдавать output через ajax
+        return HttpResponse("Exception")
 
 
 def add_item(request):
-    # i = Item()
-    # i.name = request.GET['name']
-    # i.cost = request.GET['cost']
-    # i.customer = request.GET['customer']
-    # i.consumers = request.GET['consumers_ids']
-    # i.save()
-    print(request.GET['name'])
-    return HttpResponse("OK")
-    # TODO принимать параметры в add, из POST, проверять чтобы не было лишних символов escape string
+    try:
+        i = Item()
+        i.name = request.GET['name']
+        i.cost = request.GET['cost']
+        i.customer = MyUser.objects.get(id=int(request.GET['customer']))
+        i.save()
+    except Exception as e:
+        print(e)
+    return HttpResponse("Item was added")
 
 
+@csrf_exempt
 def view_item(request, item_id):
-    return HttpResponse("You're looking at item %s." % item_id)
+    try:
+        data = Item.objects.get(id=item_id)
+        return json_handler(request, data)
+    except Exception as e:
+        print(e)
+        return HttpResponse("Exception")
 
 
-def edit_item(request):
-    return HttpResponse("You're looking at items.")
+def edit_item(request, item_id):
+    try:
+        i = Item.objects.get(id=item_id)
+        i.name = request.GET['name']
+        i.cost = request.GET['cost']
+        i.customer = MyUser.objects.get(id=int(request.GET['customer']))
+        i.save()
+    except Exception as e:
+        print(e)
+    return HttpResponse("Item %s was edited" % item_id)
 
 
-def delete_item(request):
-    return HttpResponse("You're looking at items.")
+def delete_item(request, item_id):
+    Item.objects.get(id=item_id).delete()
+    return HttpResponse("Item %s was deleted." % item_id)
+
+
+def users(request):
+    try:
+        data = MyUser.objects.all()
+        return json_handler(request, data)
+    except Exception as e:
+        print(e)
+        return HttpResponse("Exception")
 
 
 def purchase_items(request, purchase_id):

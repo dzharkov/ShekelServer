@@ -3,7 +3,7 @@ from django.db import models
 
 
 def ids(items):
-    return map(lambda x: x.id, items.all())
+    return list(map(lambda x: x.id, items.all()))
 
 
 class MyUser(models.Model):
@@ -31,8 +31,8 @@ class Item(models.Model):
             "id": self.id,
             "name": self.name,
             "cost": self.cost,
-            #"customer": self.customer,
-            #"consumers_ids": ids(self.consumers)
+            "customer": self.customer.id,
+            "consumer_ids": ids(self.consumers)
         }
 
     def __str__(self):
