@@ -60,3 +60,4 @@ docs/_build/
 db.sqlite3
 
 sqlite3.exe
+my_actions_log.txt
