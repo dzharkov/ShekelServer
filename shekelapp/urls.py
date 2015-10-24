@@ -17,6 +17,8 @@ urlpatterns = [
     url(r'^items/(?P<item_id>[0-9]+)/edit/$', views.edit_item, name='edit_item'),
     # ex: /users/
     url(r'^users/$', views.users, name='users'),
+    # ex: /users/5/
+    url(r'^users/(?P<user_id>[0-9]+)/$', views.view_user, name='view_user'),
     # ex: /5/items/
     # url(r'^(?P<purchase_id>[0-9]+)/items/$', views.purchase_items, name='purchase_items'),
 ]

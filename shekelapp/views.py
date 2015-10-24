@@ -43,6 +43,11 @@ def add_item(request):
         i.name = request.GET['name']
         i.cost = request.GET['cost']
         i.customer = MyUser.objects.get(id=int(request.GET['customer']))
+        consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
+        consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
+        i.save()
+        i.consumers.clear()
+        i.consumers.add(*consumers)
         i.save()
     except Exception as e:
         print(e)
@@ -51,12 +56,12 @@ def add_item(request):
 
 @csrf_exempt
 def view_item(request, item_id):
-    try:
-        data = Item.objects.get(id=item_id)
-        return json_handler(request, data)
-    except Exception as e:
-        print(e)
-        return HttpResponse("Exception")
+    # try:
+    data = Item.objects.get(id=item_id)
+    return json_handler(request, data)
+    # except Exception as e:
+    #    print(e)
+    # return HttpResponse("Exception")
 
 
 def edit_item(request, item_id):
@@ -65,6 +70,11 @@ def edit_item(request, item_id):
         i.name = request.GET['name']
         i.cost = request.GET['cost']
         i.customer = MyUser.objects.get(id=int(request.GET['customer']))
+        consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
+        consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
+        i.save()
+        i.consumers.clear()
+        i.consumers.add(*consumers)
         i.save()
     except Exception as e:
         print(e)
@@ -79,6 +89,16 @@ def delete_item(request, item_id):
 def users(request):
     try:
         data = MyUser.objects.all()
+        return json_handler(request, data)
+    except Exception as e:
+        print(e)
+        return HttpResponse("Exception")
+
+
+@csrf_exempt
+def view_user(request, user_id):
+    try:
+        data = MyUser.objects.get(id=user_id)
         return json_handler(request, data)
     except Exception as e:
         print(e)
