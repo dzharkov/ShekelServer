@@ -12,8 +12,8 @@ class MyUser(models.Model):
 
     def as_dict(self):
         return {
-            "id": self.id,
-            "name": self.name
+            'id': self.id,
+            'name': self.name
         }
 
     def __str__(self):
@@ -23,16 +23,16 @@ class MyUser(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=100)
     cost = models.IntegerField()
-    customer = models.ForeignKey(MyUser, related_name="bought")
-    consumers = models.ManyToManyField(MyUser, related_name="consumed")
+    customer = models.ForeignKey(MyUser, related_name='bought_by')
+    consumers = models.ManyToManyField(MyUser, related_name='consumed_by')
 
     def as_dict(self):
         return {
-            "id": self.id,
-            "name": self.name,
-            "cost": self.cost,
-            "customer": self.customer.id,
-            "consumer_ids": ids(self.consumers)
+            'id': self.id,
+            'name': self.name,
+            'cost': self.cost,
+            'customer': self.customer.id,
+            'consumer_ids': ids(self.consumers)
         }
 
     def __str__(self):
@@ -50,12 +50,12 @@ class Purchase(models.Model):
 
     def as_dict(self):
         return {
-            "id": self.id,
+            'id': self.id,
             # "party_id": self.party_id,
-            "name": self.name,
-            "cost": self.cost,
-            "items_ids": ids(self.items),
-            "shared_ids": ids(self.shared)
+            'name': self.name,
+            'cost': self.cost,
+            'items_ids': ids(self.items),
+            'shared_ids': ids(self.shared)
         }
 
     def __str__(self):
