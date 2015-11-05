@@ -22,9 +22,10 @@ def json_handler(request, data):
 
 def index(request):
     latest_items_list = Item.objects.all()[:5]
-    output = '{ "Item": [ {' + "}, {".join(
-        [str('"name": "' + p.name + '" , "cost": ' + str(p.cost)) for p in latest_items_list]) + '} ] }'
-    return HttpResponse(output)
+    return json_handler(request, latest_items_list)
+    # output = '{ "Item": [ {' + "}, {".join(
+    #    [str('"name": "' + p.name + '" , "cost": ' + str(p.cost)) for p in latest_items_list]) + '} ] }'
+    # return HttpResponse(output)
 
 
 @csrf_exempt
@@ -59,7 +60,6 @@ def view_item(request, item_id):
 
 def edit_item(request, item_id):
     i = Item.objects.get(id=item_id)
-    # if request.GET['name'] is not None:
     i.name = request.GET['name']
     i.cost = request.GET['cost']
     i.customer = MyUser.objects.get(id=int(request.GET['customer']))
