@@ -1,4 +1,4 @@
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -8,7 +8,7 @@ def ids(items):
 
 class MyUser(models.Model):
     name = models.CharField(max_length=200)
-    # user = models.OneToOneField(User, related_name="shekel")
+    user = models.OneToOneField(User, related_name="shekel")
 
     def as_dict(self):
         return {
@@ -34,6 +34,10 @@ class Item(models.Model):
             'customer': self.customer.id,
             'consumer_ids': ids(self.consumers)
         }
+
+    def fill(self):
+        # self.published_date = timezone.now()
+        self.save()
 
     def __str__(self):
         return self.name + "(" + str(self.cost) + ")"
