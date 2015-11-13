@@ -125,13 +125,23 @@ def fill_item(request, r, i):
     i.save()
 
 
+def edit_shared(r):
+    r.shared.clear()
+    for i in r.items.all():
+        for user in i.consumers.all():
+            if user not in r.shared.all():
+                r.shared.add(user)
+
+
 def additem(request, receipt_id):
     r = Receipt.objects.get(id=receipt_id)
     i = Item()
     fill_item(request, r, i)
     r.items.add(i)
     r.cost += int(i.cost)
-    # r.shared
+    for user in i.consumers.all():
+        if user not in r.shared.all():
+            r.shared.add(user)
     r.save()
     return {'result': 1}
 
@@ -142,7 +152,8 @@ def edititem(request, receipt_id, item_id):
     dif_cost = int(request.GET['cost']) - int(i.cost)
     fill_item(request, r, i)
     r.cost += dif_cost
-    # r.shared
+    r.save()
+    edit_shared(r)
     r.save()
     return {'result': 1}
 
@@ -153,7 +164,8 @@ def deleteitem(request, receipt_id, item_id):
     r.items.get(id=item_id).delete()
     r.cost -= int(i.cost)
     i.delete()
-    # r.shared
+    r.save()
+    edit_shared(r)
     r.save()
     return {'result': 1}
 
