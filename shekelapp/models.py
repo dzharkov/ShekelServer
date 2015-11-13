@@ -22,6 +22,7 @@ class MyUser(models.Model):
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
+    # receipt = models.ForeignKey(Receipt, related_name='bought_in')
     cost = models.IntegerField()
     customer = models.ForeignKey(MyUser, related_name='bought_by')
     consumers = models.ManyToManyField(MyUser, related_name='consumed_by')
@@ -43,24 +44,28 @@ class Item(models.Model):
         return self.name + "(" + str(self.cost) + ")"
 
 
-class Purchase(models.Model):
+class Receipt(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(MyUser)
     # party = models.ForeignKey(Event, related_name="purchases")
-
     cost = models.IntegerField()
     shared = models.ManyToManyField(MyUser, related_name="q")
-    items = models.ManyToManyField(Item)
+    items = models.ManyToManyField(Item, related_name="contains")
 
     def as_dict(self):
         return {
             'id': self.id,
             # "party_id": self.party_id,
             'name': self.name,
+            'owner': self.owner.id,
             'cost': self.cost,
             'items_ids': ids(self.items),
-            'shared_ids': ids(self.shared)
+            'consumer_ids': ids(self.shared)
         }
 
     def __str__(self):
         return self.name + "(" + str(self.cost) + ")"
+
+
+
+
