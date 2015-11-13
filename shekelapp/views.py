@@ -7,7 +7,7 @@ from annoying.decorators import ajax_request
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import models
-from .models import Item, MyUser
+from .models import Item, MyUser, Receipt
 
 
 @ajax_request
@@ -70,6 +70,7 @@ def edit_item(request, item_id):
     i.consumers.add(*consumers)
     i.save()
     return {'result': 1}
+    # return HttpResponse("%s" % str(int(i.cost)/17))
 
 
 def delete_item(request, item_id):
@@ -88,8 +89,44 @@ def view_user(request, user_id):
     return json_handler(request, data)
 
 
-def purchase_items(request, purchase_id):
-    return HttpResponse("You're looking at items of purchase %s." % purchase_id)
+def all_receipts(request):
+    data = Receipt.objects.all()
+    return json_handler(request, data)
+
+
+def view_receipt(request, receipt_id):
+    data = Receipt.objects.get(id=receipt_id)
+    return json_handler(request, data)
+
+
+def receipt_items(request, receipt_id):
+    data = Receipt.objects.get(id=receipt_id).items.all()
+    return json_handler(request, data)
+
+
+def add_receipt(request):
+    i = Receipt()
+    i.name = request.GET['name']
+    i.owner = MyUser.objects.get(id=int(request.GET['owner']))
+    consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
+    consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
+    items_ids_list = list(map(int, request.GET['items_ids'].split(",")))
+    items = list(Item.objects.filter(id__in=items_ids_list).all())
+    count = 0
+    for i in items:
+        count += i.cost
+    i.cost = count
+    i.save()
+    i.shared.clear()
+    i.shared.add(*consumers)
+    i.items.clear()
+    i.items.add(*items)
+    i.save()
+    return {'result': 1}
+
+
+
+
 
 
 # def request_handler(request, model_name, **kwargs):

@@ -5,4 +5,4 @@ from .models import *
 
 admin.site.register(MyUser)
 admin.site.register(Item)
-admin.site.register(Purchase)
+admin.site.register(Receipt)
