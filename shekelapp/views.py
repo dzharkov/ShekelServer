@@ -89,7 +89,7 @@ def view_user(request, user_id):
     return json_handler(request, data)
 
 
-def all_receipts(request):
+def event_receipts(request):
     data = Receipt.objects.all()
     return json_handler(request, data)
 
@@ -124,6 +124,40 @@ def add_receipt(request):
     i.save()
     return {'result': 1}
 
+
+def additem(request, receipt_id):
+    i = Item()
+    i.name = request.GET['name']
+    i.cost = request.GET['cost']
+    i.customer = MyUser.objects.get(id=int(request.GET['customer']))
+    consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
+    consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
+    i.save()
+    i.consumers.clear()
+    i.consumers.add(*consumers)
+    i.save()
+    Receipt.objects.get(id=receipt_id).items.add(i)
+    return {'result': 1}
+
+
+def edititem(request, item_id):
+    i = Item.objects.get(id=item_id)
+    i.name = request.GET['name']
+    i.cost = request.GET['cost']
+    i.customer = MyUser.objects.get(id=int(request.GET['customer']))
+    consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
+    consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
+    i.save()
+    i.consumers.clear()
+    i.consumers.add(*consumers)
+    i.save()
+    return {'result': 1}
+
+
+def deleteitem(request, receipt_id, item_id):
+    Receipt.objects.get(id=receipt_id).items.get(id=item_id).delete()
+    Item.objects.get(id=item_id).delete()
+    return {'result': 1}
 
 
 
