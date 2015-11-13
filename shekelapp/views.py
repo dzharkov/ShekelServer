@@ -34,8 +34,7 @@ def all_items(request):
     return json_handler(request, data)
 
 
-def add_item(request):
-    i = Item()
+def fill_item0(request, i):
     i.name = request.GET['name']
     i.cost = request.GET['cost']
     i.customer = MyUser.objects.get(id=int(request.GET['customer']))
@@ -45,6 +44,11 @@ def add_item(request):
     i.consumers.clear()
     i.consumers.add(*consumers)
     i.save()
+
+
+def add_item(request):
+    i = Item()
+    fill_item0(request, i)
     return {'result': 1}
 
 
@@ -60,17 +64,8 @@ def view_item(request, item_id):
 
 def edit_item(request, item_id):
     i = Item.objects.get(id=item_id)
-    i.name = request.GET['name']
-    i.cost = request.GET['cost']
-    i.customer = MyUser.objects.get(id=int(request.GET['customer']))
-    consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
-    consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
-    i.save()
-    i.consumers.clear()
-    i.consumers.add(*consumers)
-    i.save()
+    fill_item0(request, i)
     return {'result': 1}
-    # return HttpResponse("%s" % str(int(i.cost)/17))
 
 
 def delete_item(request, item_id):
@@ -97,6 +92,7 @@ def event_receipts(request):
 def view_receipt(request, receipt_id):
     data = Receipt.objects.get(id=receipt_id)
     return json_handler(request, data)
+# TODO Items as models, not as ids in response
 
 
 def receipt_items(request, receipt_id):
@@ -104,59 +100,61 @@ def receipt_items(request, receipt_id):
     return json_handler(request, data)
 
 
+def fill_receipt(request, r):
+    r.name = request.GET['name']
+    r.owner = MyUser.objects.get(id=int(request.GET['owner']))
+    r.cost = 0
+    r.save()
+
+
 def add_receipt(request):
-    i = Receipt()
+    r = Receipt()
+    fill_receipt(request, r)
+    return {'result': 1}
+
+
+def fill_item(request, r, i):
     i.name = request.GET['name']
-    i.owner = MyUser.objects.get(id=int(request.GET['owner']))
+    i.cost = request.GET['cost']
+    i.customer = r.owner
     consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
     consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
-    items_ids_list = list(map(int, request.GET['items_ids'].split(",")))
-    items = list(Item.objects.filter(id__in=items_ids_list).all())
-    count = 0
-    for i in items:
-        count += i.cost
-    i.cost = count
     i.save()
-    i.shared.clear()
-    i.shared.add(*consumers)
-    i.items.clear()
-    i.items.add(*items)
+    i.consumers.clear()
+    i.consumers.add(*consumers)
     i.save()
-    return {'result': 1}
 
 
 def additem(request, receipt_id):
+    r = Receipt.objects.get(id=receipt_id)
     i = Item()
-    i.name = request.GET['name']
-    i.cost = request.GET['cost']
-    i.customer = MyUser.objects.get(id=int(request.GET['customer']))
-    consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
-    consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
-    i.save()
-    i.consumers.clear()
-    i.consumers.add(*consumers)
-    i.save()
-    Receipt.objects.get(id=receipt_id).items.add(i)
+    fill_item(request, r, i)
+    r.items.add(i)
+    r.cost += int(i.cost)
+    # r.shared
+    r.save()
     return {'result': 1}
 
 
-def edititem(request, item_id):
+def edititem(request, receipt_id, item_id):
+    r = Receipt.objects.get(id=receipt_id)
     i = Item.objects.get(id=item_id)
-    i.name = request.GET['name']
-    i.cost = request.GET['cost']
-    i.customer = MyUser.objects.get(id=int(request.GET['customer']))
-    consumer_ids_list = list(map(int, request.GET['consumer_ids'].split(",")))
-    consumers = list(MyUser.objects.filter(id__in=consumer_ids_list).all())
-    i.save()
-    i.consumers.clear()
-    i.consumers.add(*consumers)
-    i.save()
+    dif_cost = int(request.GET['cost']) - int(i.cost)
+    fill_item(request, r, i)
+    r.cost += dif_cost
+    # r.shared
+    r.save()
     return {'result': 1}
 
 
 def deleteitem(request, receipt_id, item_id):
-    Receipt.objects.get(id=receipt_id).items.get(id=item_id).delete()
-    Item.objects.get(id=item_id).delete()
+    r = Receipt.objects.get(id=receipt_id)
+    i = Item.objects.get(id=item_id)
+    r.items.get(id=item_id).delete()
+    r.cost -= int(i.cost)
+    i.delete()
+    # r.shared
+    r.save()
     return {'result': 1}
 
 
