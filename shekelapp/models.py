@@ -59,8 +59,10 @@ class Receipt(models.Model):
             'name': self.name,
             'owner': self.owner.id,
             'cost': self.cost,
-            'items_ids': ids(self.items),
-            'consumer_ids': ids(self.shared)
+            'items': list(map(lambda x: x.as_dict(), self.items.all())),
+            'consumer_ids': ids(self.shared),
+            # 'consumers': list(map(lambda x: x.as_dict(), self.shared.all()))
+            # 'items_ids': ids(self.items),
         }
 
     def __str__(self):
