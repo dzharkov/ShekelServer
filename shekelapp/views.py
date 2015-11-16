@@ -198,9 +198,9 @@ def user_spent(request, user_id):
     return {"result": 1, "data": {"spent": spent, "items": items}}
 
 
-def user_consumed_r(request, receipt_id, user_id):
+def user_consumed_r(request, receipt_id):
     r = Receipt.objects.get(id=receipt_id)
-    u = MyUser.objects.get(id=user_id)
+    u = MyUser.objects.get(id=request.GET['user_id'])
     consumed = 0
     items = 0
     for i in r.items.all():
@@ -210,8 +210,8 @@ def user_consumed_r(request, receipt_id, user_id):
     return {"result": 1, "data": {"consumed": consumed, "items": items}}
 
 
-def user_consumed(request, user_id):
-    u = MyUser.objects.get(id=user_id)
+def user_consumed(request):
+    u = MyUser.objects.get(id=request.GET['user_id'])
     consumed = 0
     items = 0
     for i in u.consumed.all():
