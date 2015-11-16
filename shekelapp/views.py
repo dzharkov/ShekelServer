@@ -92,7 +92,6 @@ def event_receipts(request):
 def view_receipt(request, receipt_id):
     data = Receipt.objects.get(id=receipt_id)
     return json_handler(request, data)
-# TODO Items as models, not as ids in response
 
 
 def receipt_items(request, receipt_id):
@@ -110,6 +109,23 @@ def fill_receipt(request, r):
 def add_receipt(request):
     r = Receipt()
     fill_receipt(request, r)
+    return {'result': 1}
+
+
+def rename_receipt(request, receipt_id):
+    r = Receipt.objects.get(id=receipt_id)
+    r.name = request.GET['name']
+    r.save()
+    return {'result': 1}
+
+
+def delete_receipt(request, receipt_id):
+    r = Receipt.objects.get(id=receipt_id)
+    for i in r.items.all():
+        i.delete()
+    # event.cost -= r.cost
+    r.save()
+    r.delete()
     return {'result': 1}
 
 
@@ -170,18 +186,35 @@ def deleteitem(request, receipt_id, item_id):
     return {'result': 1}
 
 
+# TODO если изменяется объект - выдавать его обратно
+
+def user_spent(request, user_id):
+    u = MyUser.objects.get(id=user_id)
+    spent = 0
+    items = 0
+    for r in u.receipts.all():
+        spent += r.cost
+        items += r.items.count()
+    return {'result': 1, 'data': {"spent": spent, "items": items}}
 
 
+def user_consumed_r(request, receipt_id, user_id):
+    r = Receipt.objects.get(id=receipt_id)
+    u = MyUser.objects.get(id=user_id)
+    consumed = 0
+    items = 0
+    for i in r.items.all():
+        if i in u.consumed.all():
+            consumed += i.cost/i.consumers.count()
+            items += 1
+    return {'result': 1, 'data': {"consumed": consumed, "items": items}}
 
-# def request_handler(request, model_name, **kwargs):
-#     method = request.META["REQUEST_METHOD"]
-#     models = {
-#         "item": Item,
-#         "user": MyUser
-#     }
-#
-#     if model_name not in models:
-#         raise Http404()
-#     model = models[model_name]
-#     data = process_request(request, method=method, model=model, **kwargs)
-#     return json_handler(request, data)
+
+def user_consumed(request, user_id):
+    u = MyUser.objects.get(id=user_id)
+    consumed = 0
+    items = 0
+    for i in u.consumed.all():
+            consumed += i.cost/i.consumers.count()
+            items += 1
+    return {'result': 1, 'data': {"consumed": consumed, "items": items}}
