@@ -8,7 +8,7 @@ def ids(items):
 
 class MyUser(models.Model):
     name = models.CharField(max_length=200)
-    user = models.OneToOneField(User, related_name="shekel")
+    user = models.OneToOneField(User, default=1, related_name="shekel")
 
     def as_dict(self):
         return {
@@ -24,8 +24,8 @@ class Item(models.Model):
     name = models.CharField(max_length=100)
     # receipt = models.ForeignKey(Receipt, related_name='bought_in')
     cost = models.IntegerField()
-    customer = models.ForeignKey(MyUser, related_name='bought_by')
-    consumers = models.ManyToManyField(MyUser, related_name='consumed_by')
+    customer = models.ForeignKey(MyUser, related_name='bought')
+    consumers = models.ManyToManyField(MyUser, related_name='consumed')
 
     def as_dict(self):
         return {
@@ -46,11 +46,11 @@ class Item(models.Model):
 
 class Receipt(models.Model):
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(MyUser)
+    owner = models.ForeignKey(MyUser, related_name="receipts")
     # party = models.ForeignKey(Event, related_name="purchases")
     cost = models.IntegerField()
     shared = models.ManyToManyField(MyUser, related_name="q")
-    items = models.ManyToManyField(Item, related_name="contains")
+    items = models.ManyToManyField(Item, related_name="contained_by")
 
     def as_dict(self):
         return {
