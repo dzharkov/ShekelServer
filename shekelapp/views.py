@@ -195,7 +195,7 @@ def user_spent(request, user_id):
     for r in u.receipts.all():
         spent += r.cost
         items += r.items.count()
-    return {'result': 1, 'data': {"spent": spent, "items": items}}
+    return {"result": 1, "data": {"spent": spent, "items": items}}
 
 
 def user_consumed_r(request, receipt_id, user_id):
@@ -207,7 +207,7 @@ def user_consumed_r(request, receipt_id, user_id):
         if i in u.consumed.all():
             consumed += i.cost/i.consumers.count()
             items += 1
-    return {'result': 1, 'data': {"consumed": consumed, "items": items}}
+    return {"result": 1, "data": {"consumed": consumed, "items": items}}
 
 
 def user_consumed(request, user_id):
@@ -217,4 +217,4 @@ def user_consumed(request, user_id):
     for i in u.consumed.all():
             consumed += i.cost/i.consumers.count()
             items += 1
-    return {'result': 1, 'data': {"consumed": consumed, "items": items}}
+    return {"result": 1, "data": {"consumed": consumed, "items": items}}
