@@ -49,7 +49,7 @@ def fill_item0(request, i):
 def add_item(request):
     i = Item()
     fill_item0(request, i)
-    return {'result': 1}
+    return json_handler(request, i)
 
 
 @csrf_exempt
@@ -65,7 +65,7 @@ def view_item(request, item_id):
 def edit_item(request, item_id):
     i = Item.objects.get(id=item_id)
     fill_item0(request, i)
-    return {'result': 1}
+    return json_handler(request, i)
 
 
 def delete_item(request, item_id):
@@ -109,14 +109,14 @@ def fill_receipt(request, r):
 def add_receipt(request):
     r = Receipt()
     fill_receipt(request, r)
-    return {'result': 1}
+    return json_handler(request, r)
 
 
 def rename_receipt(request, receipt_id):
     r = Receipt.objects.get(id=receipt_id)
     r.name = request.GET['name']
     r.save()
-    return {'result': 1}
+    return json_handler(request, r)
 
 
 def delete_receipt(request, receipt_id):
@@ -159,7 +159,7 @@ def additem(request, receipt_id):
         if user not in r.shared.all():
             r.shared.add(user)
     r.save()
-    return {'result': 1}
+    return json_handler(request, i)
 
 
 def edititem(request, receipt_id, item_id):
@@ -171,7 +171,7 @@ def edititem(request, receipt_id, item_id):
     r.save()
     edit_shared(r)
     r.save()
-    return {'result': 1}
+    return json_handler(request, i)
 
 
 def deleteitem(request, receipt_id, item_id):
