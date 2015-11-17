@@ -70,7 +70,8 @@ def edit_item(request, item_id):
 
 def delete_item(request, item_id):
     Item.objects.get(id=item_id).delete()
-    return {'result': 1}
+    data = {'result': 1}
+    return json_handler(request, data)
 
 
 def users(request):
@@ -126,7 +127,8 @@ def delete_receipt(request, receipt_id):
     # event.cost -= r.cost
     r.save()
     r.delete()
-    return {'result': 1}
+    data = {'result': 1}
+    return json_handler(request, data)
 
 
 def fill_item(request, r, i):
@@ -183,7 +185,8 @@ def deleteitem(request, receipt_id, item_id):
     r.save()
     edit_shared(r)
     r.save()
-    return {'result': 1}
+    data = {'result': 1}
+    return json_handler(request, data)
 
 
 # TODO если изменяется объект - выдавать его обратно
@@ -195,7 +198,8 @@ def user_spent(request, user_id):
     for r in u.receipts.all():
         spent += r.cost
         items += r.items.count()
-    return {"result": 1, "data": {"spent": spent, "items": items}}
+    data = {"result": 1, "data": {"spent": spent, "items": items}}
+    return json_handler(request, data)
 
 
 def user_consumed_r(request, receipt_id):
@@ -207,7 +211,8 @@ def user_consumed_r(request, receipt_id):
         if i in u.consumed.all():
             consumed += i.cost/i.consumers.count()
             items += 1
-    return {"result": 1, "data": {"consumed": consumed, "items": items}}
+    data = {"result": 1, "data": {"consumed": consumed, "items": items}}
+    return json_handler(request, data)
 
 
 def user_consumed(request):
@@ -217,4 +222,5 @@ def user_consumed(request):
     for i in u.consumed.all():
             consumed += i.cost/i.consumers.count()
             items += 1
-    return {"result": 1, "data": {"consumed": consumed, "items": items}}
+    data = {"result": 1, "data": {"consumed": consumed, "items": items}}
+    return json_handler(request, data)
