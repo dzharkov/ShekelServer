@@ -224,3 +224,49 @@ def user_consumed(request):
             items += 1
     data = {"result": 1, "data": {"consumed": consumed, "items": items}}
     return json_handler(request, data)
+
+
+def u_spent(user_id):
+    u = MyUser.objects.get(id=user_id)
+    spent = 0
+    for r in u.receipts.all():
+        spent += r.cost
+    return spent
+
+
+def u_consumed(user_id):
+    u = MyUser.objects.get(id=user_id)
+    consumed = 0
+    for i in u.consumed.all():
+            consumed += i.cost/i.consumers.count()
+    return consumed
+
+
+def user_debt(user_id):
+    return u_consumed(user_id) - u_spent(user_id)
+
+
+def count_debts(request):
+    debtors = []
+    creditors = []
+    for user in MyUser.objects.all():
+        debt = user_debt(user.id)
+        if debt > 0:
+            debtors.append([user.id, debt])
+        if debt < 0:
+            creditors.append([user.id, -debt])
+    debtors.sort(key=lambda tup: tup[1], reverse=True)
+    creditors.sort(key=lambda tup: tup[1], reverse=True)
+    debts = []
+    j = 0
+    for user in creditors:
+        while user[1] > debtors[j][1]:
+            debts.append({'from': debtors[j][0], 'to': user[0], 'debt': debtors[j][1]})
+            user[1] -= debtors[j][1]
+            j += 1
+        debts.append({'from': debtors[j][0], 'to': user[0], 'debt': user[1]})
+        debtors[j][1] -= user[1]
+        if debtors[j][1] == 0:
+            j += 1
+    data = {"result": 1, "data": {"debts": debts}}
+    return json_handler(request, data)

@@ -50,5 +50,7 @@ urlpatterns = [
     url(r'^event_id/(?P<receipt_id>[0-9]+)/consumed$', views.user_consumed_r, name='user_consumed_r'),
     # ex: event_id/consumed?user_id=4
     url(r'^event_id/consumed$', views.user_consumed, name='user_consumed'),
+    # ex: debts
+    url(r'^debts$', views.count_debts, name='count_debts'),
 
 ]
